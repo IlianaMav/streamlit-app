@@ -65,6 +65,22 @@ def run_pegasus(file, tokenizer, model):
             output_dict[header] = output
     return output_dict
 
+def run_llama2(file, tokenizer, model):
+    dict = {}
+    try:
+        with open(file, 'r') as f:
+            dict = json.load(f)
+    except TypeError: 
+        dict = file
+    output_dict = {}
+    for header, section_abstract in dict.items():
+        for key, value in section_abstract.items():
+            inputs = tokenizer(value, padding='max_length', truncation=True, return_tensors='pt', max_length = 500)
+            summary_ids = model.generate(inputs['input_ids'], max_new_tokens=300, encoder_repetition_penalty=1.5)
+            output = tokenizer.batch_decode(summary_ids)
+            output_dict[header] = output
+    return output_dict
+
 
 '''
 Helper functions
